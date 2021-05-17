@@ -11,8 +11,8 @@ Authors@R:
       person("Michael", "Belitz", email = "mbelitz@ufl.edu", role = c("ctb"), comment = c(ORCID = "0000-0002-8162-5998"))
       )
 Description: How can temporally-explicit species distribution models be compared to study changing distributions? This R package contains tools developed to infer the presence and type of seasonal animal migration from season-specific SDM. Currently in development.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+Language: en-US
+License: CC0
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
