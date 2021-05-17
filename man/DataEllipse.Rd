@@ -12,7 +12,7 @@ makeDataEllipse(coords, weights, n = 10000, prop_points)
 
 \item{n}{number of sampling replications}
 
-\item{prop_points}{what proportion of the subsampled cells should be \n included in the ellipses}
+\item{prop_points}{what proportion of the subsampled cells should be included in the ellipses}
 
 \item{weight}{the value of the surface-as-dataframe, weights the subsampling.}
 }
