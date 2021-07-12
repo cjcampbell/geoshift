@@ -16,6 +16,8 @@
 #' @param rast1 First input rasterLayer
 #' @param rast2 Second input rasterLayer
 #'
+#' @importFrom raster cellStats
+#'
 #' @export
 schoenersD <- function(rast1, rast2) {
   if (class(rast1) != "RasterLayer" | class(rast2) != "RasterLayer")

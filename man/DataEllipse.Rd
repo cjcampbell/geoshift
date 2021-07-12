@@ -10,11 +10,11 @@ makeDataEllipse(coords, weights, n = 10000, prop_points)
 \arguments{
 \item{coords}{coordinates of a surface-as-dataframe}
 
+\item{weights}{the value of the surface-as-dataframe, weights the subsampling.}
+
 \item{n}{number of sampling replications}
 
 \item{prop_points}{what proportion of the subsampled cells should be included in the ellipses}
-
-\item{weight}{the value of the surface-as-dataframe, weights the subsampling.}
 }
 \value{
 Returns a list of length 2. First item is a spatialPolygon, the second an sf object.

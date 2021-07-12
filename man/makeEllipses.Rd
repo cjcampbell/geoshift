@@ -4,12 +4,14 @@
 \alias{makeEllipses}
 \title{makeEllipses}
 \usage{
-makeEllipses(rast1, rast2)
+makeEllipses(rast1, rast2, weights)
 }
 \arguments{
 \item{rast1}{First input rasterLayer}
 
 \item{rast2}{Second input rasterLayer}
+
+\item{weights}{The value of the surface-as-dataframe (third column), weights the subsampling}
 }
 \description{
 Wrapper around makeDataEllipse to automatically call the correct columns.

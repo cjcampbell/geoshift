@@ -4,9 +4,13 @@
 #'
 #' @rdname DataEllipse
 #' @param coords coordinates of a surface-as-dataframe
-#' @param weight the value of the surface-as-dataframe, weights the subsampling.
+#' @param weights the value of the surface-as-dataframe, weights the subsampling.
 #' @param n number of sampling replications
 #' @param prop_points what proportion of the subsampled cells should be included in the ellipses
+#'
+#' @importFrom purrr map
+#' @importFrom sp SpatialPolygons Polygons
+#' @importFrom car dataEllipse
 #'
 #' @return Returns a list of length 2. First item is a spatialPolygon, the second an sf object.
 #' @export
@@ -21,11 +25,11 @@ makeDataEllipse <- function(coords,  weights, n = 10000, prop_points) {
   ellipsePts <- car::dataEllipse(x = Y[,1], y = Y[,2], levels = prop_points)
   myEllipse <- list()
   myEllipse$st <- SpatialPolygons(
-    list(Polygons(list(with(list(x = ellipsePts[,2], y = ellipsePts[,1]),Polygon(ellipsePts))),1)),
+    list(sp::Polygons(list(with(list(x = ellipsePts[,2], y = ellipsePts[,1]),Polygon(ellipsePts))),1)),
     proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
   )
   myEllipse$sf <- myEllipse$st %>%
-    st_as_sf()
+    sf::st_as_sf()
   return(myEllipse)
 
 }
@@ -37,9 +41,10 @@ makeDataEllipse <- function(coords,  weights, n = 10000, prop_points) {
 #'
 #' @param rast1 First input rasterLayer
 #' @param rast2 Second input rasterLayer
+#' @param weights The value of the surface-as-dataframe (third column), weights the subsampling
 #'
 #' @export
-makeEllipses <- function(rast1, rast2) {
+makeEllipses <- function(rast1, rast2, weights) {
   list( rast1, rast2 ) %>%
     purrr::map(~{
       makeDataEllipse(coords = .[ ,1:2], weights = .[ ,3], prop = 0.5, n = 1000)

@@ -5,15 +5,19 @@
 #' @param occDatPath Directory location where occurrence data are stored (in subdirectories with species names).
 #' @param species Character vector of species, name of subdirectory where occurrence records are stored.
 #'
+#' @importFrom utils read.csv write.csv
+#' @import dplyr
+#' @importFrom raster stack extract
+#'
 #' @return A dataframe containing occurence points chategorized into "Summer" and "Winter" months.
 #'
 #' @export
 getOccDat <- function(species, occDatPath) {
-  read.csv(
+  utils::read.csv(
     list.files( file.path( occDatPath, species ), pattern = "csv$", full.names = T)
   ) %>%
     dplyr::mutate(
-      season = case_when(
+      season = dplyr::case_when(
         month %in% 6:8 ~ "Summer",
         month %in% c(12, 1:2) ~ "Winter",
         TRUE ~ as.character(NA)
@@ -23,9 +27,13 @@ getOccDat <- function(species, occDatPath) {
 }
 
 #' @rdname UsingOccurrenceData
-#' @param occDatPath Directory location where occurrence data are stored (in subdirectories with species names).
+#'
+#' @param rast1 First input rasterLayer
+#' @param rast2 Second input rasterLayer
+#' @param rastnames Character vector of layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively)
 #' @param species Character vector of species, name of subdirectory where occurrence records are stored.
 #' @param speciesOccPts Occurrence points used in the model. In this example, requires column 'season'. Output of getOccDat function fits here.
+#'
 #'
 #' @return A dataframe containing occurence points chategorized into "Summer" and "Winter" months.
 #'
@@ -33,7 +41,7 @@ getOccDat <- function(species, occDatPath) {
 getSeasonalChangeAtSampleSites <- function(rast1, rast2, rastnames = c("Summer", "Winter"),
                                            species, speciesOccPts) {
 
-  mystack <-  stack(rast1, rast2)
+  mystack <- raster::stack(rast1, rast2)
   names(mystack) <- rastnames
 
   pts <- SpatialPoints( cbind( speciesOccPts$decimalLongitude, speciesOccPts$decimalLatitude ) )
@@ -43,7 +51,7 @@ getSeasonalChangeAtSampleSites <- function(rast1, rast2, rastnames = c("Summer",
     raster::extract(mystack, pts)
   ) %>%
     dplyr::mutate(
-      difference = case_when(
+      difference = dplyr::case_when(
         season == "Summer" ~ Summer - Winter,
         season == "Winter" ~ Winter - Summer
       )

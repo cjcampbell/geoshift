@@ -20,6 +20,12 @@ getSeasonalChangeAtSampleSites(
 
 \item{occDatPath}{Directory location where occurrence data are stored (in subdirectories with species names).}
 
+\item{rast1}{First input rasterLayer}
+
+\item{rast2}{Second input rasterLayer}
+
+\item{rastnames}{Character vector of layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively)}
+
 \item{speciesOccPts}{Occurrence points used in the model. In this example, requires column 'season'. Output of getOccDat function fits here.}
 }
 \value{
