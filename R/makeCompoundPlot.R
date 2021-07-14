@@ -8,6 +8,7 @@
 #' @param species Character vector of species, name of subdirectory where results are (optionally) saved.
 #' @param myEllipses List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.
 #' @param csvSaveDir Optional file path to save csv object to.
+#' @param ... DataFrame column nams to populated geom_tile(aes()), e.g., : x=x,y=y,fill=value
 #'
 #' @importFrom magrittr %>%
 #' @import ggplot2
@@ -21,12 +22,12 @@
 #'
 #' @export
 makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), myEllipses,
-                             species, summaryTable, pngSaveDirectory = FALSE) {
+                             species, summaryTable, pngSaveDirectory = FALSE, ...) {
 
   similaritySurface <- schoenersProjection( rast2,rast1, abs = FALSE )
   similaritySurface_df <- surface2df(similaritySurface)
   p <- ggplot2::ggplot() +
-    ggplot2::geom_tile(data = similaritySurface_df , aes(x=x,y=y,fill=value)) +
+    ggplot2::geom_tile(data = similaritySurface_df , aes(...)) +
     ggplot2::geom_sf(myEllipses[[1]]$sf, mapping = aes(), fill = NA, col = "red") +
     ggplot2::geom_sf(data = rgeos::gCentroid(myEllipses[[1]]$st) %>% sf::st_as_sf(), mapping = aes(), col = "red") +
     ggplot2::geom_sf(myEllipses[[2]]$sf, mapping = aes(), fill = NA, col = "blue") +
@@ -67,3 +68,4 @@ makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), my
   }
   return(p2)
 }
+

@@ -11,7 +11,7 @@
 #' @seealso surface2df
 #'
 #' @export
-makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, savePath = NULL) {
+makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, savePath = NULL, ...) {
 
   if(season == "Summer") {
     maxCol <- scales::muted("red")
@@ -24,7 +24,7 @@ makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, 
   }
 
   p <- ggplot() +
-    geom_tile(data = surface , aes(x=x,y=y,fill=value)) +
+    geom_tile(data = surface , aes(...)) +
     scale_fill_gradient(
       name = "Probability of\nOccurrence",
       low = "grey90",
@@ -50,3 +50,7 @@ makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, 
   return(p)
 
 }
+
+#' @example
+#' # makePlot(mySurface, species = "LANO", season = "summer", x=x,y=y,fill=value )
+#' # Additional aes arguments supplied: "x=x,y=y,fill=value"
