@@ -38,13 +38,13 @@ schoenersD <- function(rast1, rast2) {
 #' @export
 schoenersProjection <- function(rast1, rast2, abs = TRUE) {
   #
-  # Show difference btwn 2 surfaces
-  #
+  r1 <- rast1/raster::cellStats(rast1, stat = 'sum')
+  r2 <- rast2/raster::cellStats(rast2, stat = 'sum')
   #
   if(abs == TRUE){
-    out <- 1 - (0.5*abs(rast1 - rast2))
+    out <- 1 - (0.5*abs(r1 - r2))
   } else {
-    out <-  1 - (0.5*(rast1 - rast2))
+    out <-  1 - (0.5*(r1 - r2))
   }
   return(out)
 }
