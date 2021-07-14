@@ -28,7 +28,7 @@
 #' @export
 extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, ..., csvSaveDir = FALSE) {
 
-  deets <- SDMetrics::schoenersD(rast1,rast2)
+  deets <- schoenersD(rast1,rast2)
 
   mdf <-  deets %>%
     lapply(round, digits = 2) %>%

@@ -25,6 +25,8 @@ extractStatistics(
 
 \item{myEllipses}{List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.}
 
+\item{...}{extra arguments passed to makeDataEllipse}
+
 \item{csvSaveDir}{Optional file path to save csv object to.}
 }
 \value{
