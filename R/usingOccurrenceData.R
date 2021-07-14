@@ -34,6 +34,7 @@ getOccDat <- function(species, occDatPath) {
 #' @param species Character vector of species, name of subdirectory where occurrence records are stored.
 #' @param speciesOccPts Occurrence points used in the model. In this example, requires column 'season'. Output of getOccDat function fits here.
 #'
+#' @importFrom sp SpatialPoints
 #'
 #' @return A dataframe containing occurence points chategorized into "Summer" and "Winter" months.
 #'
@@ -44,7 +45,7 @@ getSeasonalChangeAtSampleSites <- function(rast1, rast2, rastnames = c("Summer",
   mystack <- raster::stack(rast1, rast2)
   names(mystack) <- rastnames
 
-  pts <- SpatialPoints( cbind( speciesOccPts$decimalLongitude, speciesOccPts$decimalLatitude ) )
+  pts <- sp::SpatialPoints( cbind( speciesOccPts$decimalLongitude, speciesOccPts$decimalLatitude ) )
 
   mdf <- data.frame(
     speciesOccPts[, c("species", "decimalLongitude", "decimalLatitude", "season")],

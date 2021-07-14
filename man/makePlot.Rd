@@ -10,7 +10,8 @@ makePlot(
   season,
   maxCol = NULL,
   coordArgs = NULL,
-  savePath = NULL
+  savePath = NULL,
+  ...
 )
 }
 \arguments{

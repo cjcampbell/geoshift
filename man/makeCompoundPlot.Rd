@@ -11,7 +11,8 @@ makeCompoundPlot(
   myEllipses,
   species,
   summaryTable,
-  pngSaveDirectory = FALSE
+  pngSaveDirectory = FALSE,
+  ...
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ makeCompoundPlot(
 \item{myEllipses}{List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.}
 
 \item{species}{Character vector of species, name of subdirectory where results are (optionally) saved.}
+
+\item{...}{DataFrame column nams to populated geom_tile(aes()), e.g., : x=x,y=y,fill=value}
 
 \item{csvSaveDir}{Optional file path to save csv object to.}
 }
