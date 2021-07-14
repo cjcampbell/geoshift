@@ -4,15 +4,18 @@
 #' @rdname UsingOccurrenceData
 #' @param occDatPath Directory location where occurrence data are stored (in subdirectories with species names).
 #' @param species Character vector of species, name of subdirectory where occurrence records are stored.
+#' @param season Character vector to name the new column indicating time period (defaults to 'season').
 #'
 #' @importFrom utils read.csv write.csv
-#' @import dplyr
+#' @importFrom dplyr mutate case_when filter
 #' @importFrom raster stack extract
+#' @importFrom magrittr %>%
+#' @importFrom sp SpatialPoints
 #'
 #' @return A dataframe containing occurence points chategorized into "Summer" and "Winter" months.
 #'
 #' @export
-getOccDat <- function(species, occDatPath) {
+getOccDat <- function(species, occDatPath, season = season) {
   utils::read.csv(
     list.files( file.path( occDatPath, species ), pattern = "csv$", full.names = T)
   ) %>%
@@ -23,7 +26,7 @@ getOccDat <- function(species, occDatPath) {
         TRUE ~ as.character(NA)
       )
     ) %>%
-    filter(!is.na(season))
+    dplyr::filter(!is.na(season))
 }
 
 #' @rdname UsingOccurrenceData
@@ -33,6 +36,7 @@ getOccDat <- function(species, occDatPath) {
 #' @param rastnames Character vector of layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively)
 #' @param species Character vector of species, name of subdirectory where occurrence records are stored.
 #' @param speciesOccPts Occurrence points used in the model. In this example, requires column 'season'. Output of getOccDat function fits here.
+#' @param saveDir Directory in which to save output.
 #'
 #' @importFrom sp SpatialPoints
 #'
@@ -40,7 +44,7 @@ getOccDat <- function(species, occDatPath) {
 #'
 #' @export
 getSeasonalChangeAtSampleSites <- function(rast1, rast2, rastnames = c("Summer", "Winter"),
-                                           species, speciesOccPts) {
+                                           species, speciesOccPts, saveDir) {
 
   mystack <- raster::stack(rast1, rast2)
   names(mystack) <- rastnames
@@ -60,8 +64,7 @@ getSeasonalChangeAtSampleSites <- function(rast1, rast2, rastnames = c("Summer",
 
   write.csv(
     mdf,
-    file = file.path(
-      wd$out, species, paste0(paste(species, "changeAtSites", sep = "_"), ".csv")
+    file = file.path(saveDir, species, paste0(paste(species, "changeAtSites", sep = "_"), ".csv")
     )
   )
   return(mdf)

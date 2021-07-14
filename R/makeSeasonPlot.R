@@ -7,6 +7,8 @@
 #' @param coordArgs optional coordinate arguments to populate coord_sf.
 #' @param savePath optional (character) file path to save plot.
 #'
+#' @importFrom scales muted
+#'
 #' @return a ggplot object
 #' @seealso surface2df
 #'

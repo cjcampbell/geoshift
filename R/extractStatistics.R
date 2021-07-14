@@ -16,6 +16,8 @@
 #'
 #' @importFrom utils write.csv
 #' @importFrom geosphere bearing
+#' @importFrom units set_units
+#' @import sf
 #'
 #' @seealso makeDataEllipse
 #' @seealso surfaceEquivalency

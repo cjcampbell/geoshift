@@ -5,20 +5,23 @@
 \alias{getSeasonalChangeAtSampleSites}
 \title{Get occurrence data and examine change across seasons (or other time periods) at those points.}
 \usage{
-getOccDat(species, occDatPath)
+getOccDat(species, occDatPath, season = season)
 
 getSeasonalChangeAtSampleSites(
   rast1,
   rast2,
   rastnames = c("Summer", "Winter"),
   species,
-  speciesOccPts
+  speciesOccPts,
+  saveDir
 )
 }
 \arguments{
 \item{species}{Character vector of species, name of subdirectory where occurrence records are stored.}
 
 \item{occDatPath}{Directory location where occurrence data are stored (in subdirectories with species names).}
+
+\item{season}{Character vector to name the new column indicating time period (defaults to 'season').}
 
 \item{rast1}{First input rasterLayer}
 
@@ -27,6 +30,8 @@ getSeasonalChangeAtSampleSites(
 \item{rastnames}{Character vector of layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively)}
 
 \item{speciesOccPts}{Occurrence points used in the model. In this example, requires column 'season'. Output of getOccDat function fits here.}
+
+\item{saveDir}{Directory in which to save output.}
 }
 \value{
 A dataframe containing occurence points chategorized into "Summer" and "Winter" months.

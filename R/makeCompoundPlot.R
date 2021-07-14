@@ -14,6 +14,9 @@
 #' @import ggplot2
 #' @importFrom gridExtra tableGrob arrangeGrob
 #' @importFrom rgeos gCentroid
+#' @import sf
+#' @importFrom scales muted
+#' @importFrom dplyr rename_all mutate_if funs
 #'
 #' @seealso makeDataEllipse
 #' @seealso surfaceEquivalency
@@ -49,7 +52,7 @@ makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), my
       legend.position = "bottom"
     )
   mytab <- summaryTable %>%
-    dplyr::rename_all(funs(gsub("[[:punct:]]", "\\n", make.names(names(summaryTable))))) %>%
+    dplyr::rename_all(dplyr::funs(gsub("[[:punct:]]", "\\n", make.names(names(summaryTable))))) %>%
     dplyr::mutate_if(is.numeric, round, digits = 2) %>%
     gridExtra::tableGrob(
       theme = ggplot2::theme_minimal(

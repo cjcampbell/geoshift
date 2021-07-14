@@ -9,8 +9,10 @@
 #' @param prop_points what proportion of the subsampled cells should be included in the ellipses
 #'
 #' @importFrom purrr map
-#' @importFrom sp CRS Polygons SpatialPolygons
+#' @importFrom sp CRS Polygons Polygon SpatialPolygons
 #' @importFrom car dataEllipse
+#' @importFrom sf st_as_sf
+#' @importFrom purrr map
 #'
 #' @return Returns a list of length 2. First item is a spatialPolygon, the second an sf object.
 #' @export
@@ -25,7 +27,7 @@ makeDataEllipse <- function(coords,  weights, n = 10000, prop_points) {
   ellipsePts <- car::dataEllipse(x = Y[,1], y = Y[,2], levels = prop_points)
   myEllipse <- list()
   myEllipse$st <- SpatialPolygons(
-    list(sp::Polygons(list(with(list(x = ellipsePts[,2], y = ellipsePts[,1]),Polygon(ellipsePts))),1)),
+    list(sp::Polygons(list(with(list(x = ellipsePts[,2], y = ellipsePts[,1]),sp::Polygon(ellipsePts))),1)),
     proj4string = sp::CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
   )
   myEllipse$sf <- myEllipse$st %>%
