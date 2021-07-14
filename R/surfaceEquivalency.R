@@ -22,7 +22,11 @@
 schoenersD <- function(rast1, rast2) {
   if (class(rast1) != "RasterLayer" | class(rast2) != "RasterLayer")
     stop("arguments are not of class 'RasterLayer'")
-  1 - (0.5 * raster::cellStats(abs(rast1 - rast2), stat = "sum"))
+
+  r1 <- rast1/raster::cellStats(rast1, stat = 'sum')
+  r2 <- rast2/raster::cellStats(rast2, stat = 'sum')
+
+  1 - (0.5 * raster::cellStats(abs(r1 - r2), stat = "sum"))
 }
 
 #' @rdname surfaceSimilarity
