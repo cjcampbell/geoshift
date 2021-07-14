@@ -13,6 +13,7 @@
 #' @param species Character vector of species, name of subdirectory where results are (optionally) saved.
 #' @param myEllipses List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.
 #' @param csvSaveDir Optional file path to save csv object to.
+#' @param ... extra arguments passed to makeDataEllipse
 #'
 #' @importFrom utils write.csv
 #' @importFrom geosphere bearing
