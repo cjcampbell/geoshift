@@ -4,7 +4,7 @@
 \alias{makeEllipses}
 \title{makeEllipses}
 \usage{
-makeEllipses(rast1, rast2, weights)
+makeEllipses(rast1, rast2, weights, prop_points = 0.5, n = 1000)
 }
 \arguments{
 \item{rast1}{First input rasterLayer}
@@ -12,6 +12,13 @@ makeEllipses(rast1, rast2, weights)
 \item{rast2}{Second input rasterLayer}
 
 \item{weights}{The value of the surface-as-dataframe (third column), weights the subsampling}
+
+\item{prop_points}{what proportion of the subsampled cells should be included in the ellipses}
+
+\item{n}{number of sampling replications}
+}
+\value{
+A list of ellipse objects for rast1 and rast2 respectively
 }
 \description{
 Wrapper around makeDataEllipse to automatically call the correct columns.

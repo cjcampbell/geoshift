@@ -44,11 +44,20 @@ makeDataEllipse <- function(coords,  weights, n = 10000, prop_points) {
 #' @param rast1 First input rasterLayer
 #' @param rast2 Second input rasterLayer
 #' @param weights The value of the surface-as-dataframe (third column), weights the subsampling
+#' @param n number of sampling replications
+#' @param prop_points what proportion of the subsampled cells should be included in the ellipses
+#'
+#'
+#' @return A list of ellipse objects for rast1 and rast2 respectively
 #'
 #' @export
-makeEllipses <- function(rast1, rast2, weights) {
+makeEllipses <- function(rast1, rast2, weights, prop_points = 0.5, n = 1000) {
+
+  if(class(rast1) == "RasterLayer") { rast1 <- surface2df(rast1) }
+  if(class(rast2) == "RasterLayer") { rast1 <- surface2df(rast2) }
+
   list( rast1, rast2 ) %>%
     purrr::map(~{
-      makeDataEllipse(coords = .[ ,1:2], weights = .[ ,3], prop = 0.5, n = 1000)
+      makeDataEllipse(coords = .[ ,1:2], weights = .[ ,3], prop_points = prop_points, n = n)
     })
 }
