@@ -13,7 +13,7 @@
 #' @param species Character vector of species, name of subdirectory where results are (optionally) saved.
 #' @param myEllipses List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.
 #' @param csvSaveDir Optional file path to save csv object to.
-#' @param ... extra arguments passed to makeDataEllipse
+#' @param prop_points Proportion of the points sampled from the surface to be included in ellipses drawn
 #'
 #' @importFrom utils write.csv
 #' @importFrom geosphere bearing
@@ -26,7 +26,7 @@
 #' @return A list containing species name, layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively), metrics of surface equivalency, ellipse areas, ratio of ellipse areas, percent of ellipse intersected, centroid latitude and longitude for each ellipse, and distance and bearing between each centroid.
 #'
 #' @export
-extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, ..., csvSaveDir = FALSE) {
+extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, csvSaveDir = FALSE, prop_points = 0.5) {
 
   deets <- schoenersD(rast1,rast2)
 
@@ -39,14 +39,14 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     df_surface_rast1 <- surface2df(rast1)
     df_surface_rast2 <- surface2df(rast2)
     myEllipses <- list(
-      makeDataEllipse(df_surface_rast1, ...),
-      makeDataEllipse(df_surface_rast2, ...)
+      makeDataEllipse(coords = df_surface_rast1[,1:2], weights =  df_surface_rast1[,3], prop_points = prop_points),
+      makeDataEllipse(coords = df_surface_rast2[,1:2], weights =  df_surface_rast2[,3], prop_points = prop_points)
     )
   }
 
   suppressMessages({suppressWarnings({
-    a1 <- myEllipses[[1]]$sf %>% sf::st_area %>% units::set_units("km^2")
-    a2 <- myEllipses[[2]]$sf %>% sf::st_area %>% units::set_units("km^2")
+    a1 <- myEllipses[[1]]$sf %>% sf::st_area() %>% units::set_units("km^2")
+    a2 <- myEllipses[[2]]$sf %>% sf::st_area() %>% units::set_units("km^2")
     overlapArea <- sf::st_intersection(myEllipses[[1]]$sf, myEllipses[[2]]$sf) %>%
       sf::st_area %>% units::set_units("km^2")
     Ellipse.Area = c(a1, a2)

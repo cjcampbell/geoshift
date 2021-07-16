@@ -6,6 +6,7 @@
 #' @param maxCol color (character) to overwrite season argument, sets maximum color.
 #' @param coordArgs optional coordinate arguments to populate coord_sf.
 #' @param savePath optional (character) file path to save plot.
+#' @param ... Aesthetic arguments to populate ggplot2::geom_tile(). Suggested use might include "x=x,y=y,fill=value" or similar, depending on the column names of the 'surface' parameter.
 #'
 #' @importFrom scales muted
 #'

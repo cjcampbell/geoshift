@@ -26,6 +26,8 @@ makePlot(
 \item{coordArgs}{optional coordinate arguments to populate coord_sf.}
 
 \item{savePath}{optional (character) file path to save plot.}
+
+\item{...}{Aesthetic arguments to populate ggplot2::geom_tile(). Suggested use might include "x=x,y=y,fill=value" or similar, depending on the column names of the 'surface' parameter.}
 }
 \value{
 a ggplot object
