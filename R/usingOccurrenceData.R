@@ -1,71 +1,37 @@
-#' Get occurrence data and examine change across seasons (or other time periods) at those points.
+#' Calculate the change in rasterLayer values between rast1 and rast2 at the presence points used to create each of those surfaces.
 #'
 #'
-#' @rdname UsingOccurrenceData
-#' @param occDatPath Directory location where occurrence data are stored (in subdirectories with species names).
-#' @param species Character vector of species, name of subdirectory where occurrence records are stored.
-#' @param season Character vector to name the new column indicating time period (defaults to 'season').
-#'
-#' @importFrom utils read.csv write.csv
-#' @importFrom dplyr mutate case_when filter
-#' @importFrom raster stack extract
-#' @importFrom magrittr %>%
-#' @importFrom sp SpatialPoints
-#'
-#' @return A dataframe containing occurence points chategorized into "Summer" and "Winter" months.
-#'
-#' @export
-getOccDat <- function(species, occDatPath, season = season) {
-  utils::read.csv(
-    list.files( file.path( occDatPath, species ), pattern = "csv$", full.names = T)
-  ) %>%
-    dplyr::mutate(
-      season = dplyr::case_when(
-        month %in% 6:8 ~ "Summer",
-        month %in% c(12, 1:2) ~ "Winter",
-        TRUE ~ as.character(NA)
-      )
-    ) %>%
-    dplyr::filter(!is.na(season))
-}
-
-#' @rdname UsingOccurrenceData
+#' @rdname calculateChangeAtPoints
 #'
 #' @param rast1 First input rasterLayer
 #' @param rast2 Second input rasterLayer
 #' @param rastnames Character vector of layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively)
-#' @param species Character vector of species, name of subdirectory where occurrence records are stored.
-#' @param speciesOccPts Occurrence points used in the model. In this example, requires column 'season'. Output of getOccDat function fits here.
-#' @param saveDir Directory in which to save output.
+#' @param pts1 Points used to create rast1
+#' @param pts2 Points used to create rast2
 #'
-#' @importFrom sp SpatialPoints
+#' @importFrom dplyr mutate case_when
+#' @importFrom raster stack extract
+#' @importFrom magrittr %>%
 #'
-#' @return A dataframe containing occurence points chategorized into "Summer" and "Winter" months.
+#' @return A dataframe containing occurrence points categorized by their associated rasterLayer and the difference at that point between the associated and the opposing layer.
 #'
 #' @export
-getSeasonalChangeAtSampleSites <- function(rast1, rast2, rastnames = c("Summer", "Winter"),
-                                           species, speciesOccPts, saveDir) {
-
+calculateChangeAtPoints <- function(rast1, rast2, rastnames, pts1, pts2) {
   mystack <- raster::stack(rast1, rast2)
   names(mystack) <- rastnames
-
-  pts <- sp::SpatialPoints( cbind( speciesOccPts$decimalLongitude, speciesOccPts$decimalLatitude ) )
-
+  pts_both <- rbind(
+    data.frame(pts1, time = rastnames[1]),
+    data.frame(pts2, time = rastnames[2])
+  )
   mdf <- data.frame(
-    speciesOccPts[, c("species", "decimalLongitude", "decimalLatitude", "season")],
-    raster::extract(mystack, pts)
+    pts_both,
+    raster::extract(mystack, pts_both[,1:2])
   ) %>%
     dplyr::mutate(
       difference = dplyr::case_when(
-        season == "Summer" ~ Summer - Winter,
-        season == "Winter" ~ Winter - Summer
+        time == rastnames[1] ~ .data[[rastnames[1]]] - .data[[rastnames[2]]],
+        time == rastnames[2] ~ .data[[rastnames[2]]] - .data[[rastnames[1]]]
       )
     )
-
-  write.csv(
-    mdf,
-    file = file.path(saveDir, species, paste0(paste(species, "changeAtSites", sep = "_"), ".csv")
-    )
-  )
   return(mdf)
 }
