@@ -16,7 +16,7 @@
 #' @export
 makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, savePath = NULL, ...) {
 
-  if(season == "Summer") {
+  if(tolower(season) == "summer") {
     maxCol <- scales::muted("red")
   } else {
     maxCol <- scales::muted("blue")
