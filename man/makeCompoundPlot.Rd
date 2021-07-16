@@ -10,7 +10,7 @@ makeCompoundPlot(
   rastnames = c("Summer", "Winter"),
   myEllipses,
   species,
-  summaryTable,
+  summaryTable = NULL,
   pngSaveDirectory = FALSE,
   ...
 )
@@ -26,9 +26,11 @@ makeCompoundPlot(
 
 \item{species}{Character vector of species, name of subdirectory where results are (optionally) saved.}
 
-\item{...}{DataFrame column nams to populated geom_tile(aes()), e.g., : x=x,y=y,fill=value}
+\item{summaryTable}{Optional table of values to include under the plot. See output of 'extractStatistics'}
 
-\item{csvSaveDir}{Optional file path to save csv object to.}
+\item{pngSaveDirectory}{Optional file path to save plot object to.}
+
+\item{...}{DataFrame column nams to populated "geom_tile(aes())", e.g., : x=x,y=y,fill=value}
 }
 \value{
 A list containing species name, rastname, metrics of surface equivalency, ellipse areas, ratio of ellipse areas, percent of ellipse intersected, centroid latitude and longitude for each ellipse, and distance and bearing between each centroid.
@@ -40,4 +42,6 @@ Make overall summary plot from two rasterlayer surfaces.
 makeDataEllipse
 
 surfaceEquivalency
+
+extractStatistics
 }
