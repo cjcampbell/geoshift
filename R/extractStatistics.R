@@ -28,13 +28,6 @@
 #' @export
 extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, csvSaveDir = FALSE, prop_points = 0.5) {
 
-  deets <- schoenersD(rast1,rast2)
-
-  mdf <-  deets %>%
-    lapply(round, digits = 2) %>%
-    unlist %>%
-    as.data.frame
-
   if(is.null(myEllipses)) {
     df_surface_rast1 <- surface2df(rast1)
     df_surface_rast2 <- surface2df(rast2)
@@ -52,6 +45,7 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     Ellipse.Area = c(a1, a2)
     Area.Ratio =  Ellipse.Area / min(Ellipse.Area)
     percent.Ellipse.intersected = overlapArea / c(a1, a2)*100
+    if(length(percent.Ellipse.intersected) == 0) { percent.Ellipse.intersected <- c(0,0) }
     centroid1 <- sf::st_centroid( myEllipses[[1]]$sf )
     centroid2 <- sf::st_centroid( myEllipses[[2]]$sf )
     centroid.lat <- c( sf::st_coordinates(centroid1)[2], sf::st_coordinates(centroid2)[2] )
@@ -62,13 +56,13 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
   })})
 
   mdf <- data.frame(
-    species = species,
+    species = rep(species,2),
+    schoenersD = rep(schoenersD(rast1,rast2), 2),
     timeChunk = c(rastnames[1], rastnames[2]),
     Ellipse.Area, Area.Ratio, percent.Ellipse.intersected,
     centroid.lat, centroid.lon,
     centroid.distance = rep(centroid.distance, 2),
-    centroid.bearing = c(centroid.bearing1, centroid.bearing2 ),
-    rbind( as.data.frame( deets ), as.data.frame( deets ) )
+    centroid.bearing = c(centroid.bearing1, centroid.bearing2 )
   )
 
   if(!isFALSE(csvSaveDir)) {
