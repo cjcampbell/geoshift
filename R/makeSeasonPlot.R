@@ -5,7 +5,7 @@
 #' @param season season name (character) to specify plot color and file path. Defaults to muted red for "Summer" and muted blue for other seasons.
 #' @param maxCol color (character) to overwrite season argument, sets maximum color.
 #' @param coordArgs optional coordinate arguments to populate coord_sf.
-#' @param savePath optional (character) file path to save plot.
+#' @param pngSaveFileName optional (character) file name to which to save plot.
 #' @param ... Aesthetic arguments to populate ggplot2::geom_tile(). Suggested use might include "x=x,y=y,fill=value" or similar, depending on the column names of the 'surface' parameter.
 #'
 #' @importFrom scales muted
@@ -14,7 +14,7 @@
 #' @seealso surface2df
 #'
 #' @export
-makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, savePath = NULL, ...) {
+makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, pngSaveFileName = NULL, ...) {
 
   if(tolower(season) == "summer") {
     maxCol <- scales::muted("red")
@@ -41,12 +41,9 @@ makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, 
       legend.position = "bottom"
     )
 
-  if(!is.null(savePath)){
+  if(!is.null(pngSaveFileName)){
     ggsave(plot = p,
-           filename = file.path(
-             savePath, species,
-             paste0( paste(species, "SDM", season, sep = "_"), ".png" )
-           ),
+           filename = pngSaveFileName,
            width = 8, height = 6, units = "in", dpi = 300)
   }
 

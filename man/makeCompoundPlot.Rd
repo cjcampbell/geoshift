@@ -11,7 +11,7 @@ makeCompoundPlot(
   myEllipses,
   species,
   summaryTable = NULL,
-  pngSaveDirectory = FALSE,
+  pngSaveFileName = FALSE,
   ...
 )
 }
@@ -28,7 +28,7 @@ makeCompoundPlot(
 
 \item{summaryTable}{Optional table of values to include under the plot. See output of 'extractStatistics'}
 
-\item{pngSaveDirectory}{Optional file path to save plot object to.}
+\item{pngSaveFileName}{Optional file name to save plot object to.}
 
 \item{...}{DataFrame column nams to populated "geom_tile(aes())", e.g., : x=x,y=y,fill=value}
 }

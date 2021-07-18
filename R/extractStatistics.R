@@ -12,7 +12,7 @@
 #' @param rastnames Character vector of layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively)
 #' @param species Character vector of species, name of subdirectory where results are (optionally) saved.
 #' @param myEllipses List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.
-#' @param csvSaveDir Optional file path to save csv object to.
+#' @param csvSavePath Optional file path to save csv object to.
 #' @param prop_points Proportion of the points sampled from the surface to be included in ellipses drawn
 #' @param ... Any additional arguments to be included in the output data.frame
 #'
@@ -27,7 +27,7 @@
 #' @return A data.frame containing species name, layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively), metrics of surface equivalency, ellipse areas, ratio of ellipse areas, percent of ellipse intersected, centroid latitude and longitude for each ellipse, and distance and bearing between each centroid.
 #'
 #' @export
-extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, csvSaveDir = FALSE, prop_points = 0.5, ...) {
+extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, csvSavePath = FALSE, prop_points = 0.5, ...) {
 
   if(is.null(myEllipses)) {
     df_surface_rast1 <- surface2df(rast1)
@@ -67,12 +67,7 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     ...
   )
 
-  if(!isFALSE(csvSaveDir)) {
-    csvSubdir <- file.path(csvSaveDir, species)
-    if(!dir.exists(csvSubdir) ) { dir.create(csvSubdir) }
-    utils::write.csv( mdf, file = file.path( csvSubdir, paste0(paste(
-      species, ..., "stats", sep = "_"), ".csv") ) )
-    }
+  if(!isFALSE(csvSavePath)) { utils::write.csv( mdf, file = csvSavePath ) }
 
   return(mdf)
 
