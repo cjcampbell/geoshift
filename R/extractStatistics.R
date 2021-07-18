@@ -71,7 +71,7 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     csvSubdir <- file.path(csvSaveDir, species)
     if(!dir.exists(csvSubdir) ) { dir.create(csvSubdir) }
     utils::write.csv( mdf, file = file.path( csvSubdir, paste0(paste(
-      species, "stats", sep = "_"), ".csv") ) )
+      species, ..., "stats", sep = "_"), ".csv") ) )
     }
 
   return(mdf)
