@@ -31,6 +31,12 @@ makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), my
 
   similaritySurface <- schoenersProjection( rast2,rast1, abs = FALSE )
   similaritySurface_df <- surface2df(similaritySurface)
+
+  # Color scale details.
+  d1 <- abs(1-min(similaritySurface_df$value))
+  ad1 <- d1[which.max(d1)]
+
+  # Plots.
   p <- ggplot2::ggplot() +
     ggplot2::geom_tile(data = similaritySurface_df , aes(...)) +
     ggplot2::geom_sf(myEllipses[[1]]$sf, mapping = aes(), fill = NA, col = "red") +
@@ -40,8 +46,8 @@ makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), my
     ggplot2::scale_fill_gradient2(
       name = NULL,
       midpoint = 1, labels = c("Winter", "Summer"),
-      breaks = c(0.7, 1.3),
-      limits = c(0.6,1.5),
+      breaks = c(1-(ad1*.75), 1+(ad1*.75)),
+      limits = c(1-ad1,1+ad1),
       low = scales::muted("blue"),
       mid = "grey90",
       high = scales::muted("red")
@@ -75,7 +81,7 @@ makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), my
     ggsave(plot = p2, width = 8, height = 6, units = "in", dpi = 300,
            filename = file.path(pngSubdir, paste0(paste(
              species, "combinationPlot", sep = "_" ), ".png") )
-           )
+    )
   }
   return(p2)
 }
