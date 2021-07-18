@@ -4,14 +4,12 @@
 \alias{makeEllipses}
 \title{makeEllipses}
 \usage{
-makeEllipses(rast1, rast2, weights, prop_points = 0.5, n = 1000)
+makeEllipses(rast1, rast2, prop_points = 0.5, n = 1000)
 }
 \arguments{
 \item{rast1}{First input rasterLayer}
 
 \item{rast2}{Second input rasterLayer}
-
-\item{weights}{The value of the surface-as-dataframe (third column), weights the subsampling}
 
 \item{prop_points}{what proportion of the subsampled cells should be included in the ellipses}
 
