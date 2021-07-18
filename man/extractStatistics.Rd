@@ -11,7 +11,8 @@ extractStatistics(
   species,
   myEllipses = NULL,
   csvSaveDir = FALSE,
-  prop_points = 0.5
+  prop_points = 0.5,
+  ...
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ extractStatistics(
 \item{csvSaveDir}{Optional file path to save csv object to.}
 
 \item{prop_points}{Proportion of the points sampled from the surface to be included in ellipses drawn}
+
+\item{...}{Any additional arguments to be included in the output data.frame}
 }
 \value{
-A list containing species name, layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively), metrics of surface equivalency, ellipse areas, ratio of ellipse areas, percent of ellipse intersected, centroid latitude and longitude for each ellipse, and distance and bearing between each centroid.
+A data.frame containing species name, layerNames to be compared (defaults to "Summer" and "Winter" for rast1 and rast2 respectively), metrics of surface equivalency, ellipse areas, ratio of ellipse areas, percent of ellipse intersected, centroid latitude and longitude for each ellipse, and distance and bearing between each centroid.
 }
 \description{
 Extract metrics of surface equivalency, ellipse overlap, ellipse centroid bearing and distance.
