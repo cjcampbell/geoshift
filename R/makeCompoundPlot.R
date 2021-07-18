@@ -9,7 +9,7 @@
 #' @param myEllipses List output of 'makeDataEllipse' function. If not provided, calculations to fit dataEllipse will be rerun. Arguments for makeDataEllipse function should then be provided.
 #' @param summaryTable Optional table of values to include under the plot. See output of 'extractStatistics'
 #' @param ... DataFrame column nams to populated "geom_tile(aes())", e.g., : x=x,y=y,fill=value
-#' @param pngSaveDirectory Optional file path to save plot object to.
+#' @param pngSaveFileName Optional file name to save plot object to.
 #'
 #' @importFrom magrittr %>%
 #' @import ggplot2
@@ -27,7 +27,7 @@
 #'
 #' @export
 makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), myEllipses,
-                             species, summaryTable = NULL, pngSaveDirectory = FALSE, ...) {
+                             species, summaryTable = NULL, pngSaveFileName = FALSE, ...) {
 
   similaritySurface <- schoenersProjection( rast2,rast1, abs = FALSE )
   similaritySurface_df <- surface2df(similaritySurface)
@@ -75,14 +75,10 @@ makeCompoundPlot <- function(rast1, rast2, rastnames = c("Summer", "Winter"), my
     p2 <- gridExtra::arrangeGrob(p)
   }
 
-  if(!isFALSE(pngSaveDirectory)) {
-    pngSubdir <- file.path(pngSaveDirectory, species)
-    if(!dir.exists(pngSubdir) ) { dir.create(pngSubdir) }
+  if(!isFALSE(pngSaveFileName)) {
     ggsave(plot = p2, width = 8, height = 6, units = "in", dpi = 300,
-           filename = file.path(pngSubdir, paste0(paste(
-             species, "combinationPlot", sep = "_" ), ".png") )
-    )
-  }
+           filename = pngSaveFileName )
+    }
   return(p2)
 }
 
