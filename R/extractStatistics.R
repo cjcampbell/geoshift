@@ -67,7 +67,7 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     ...
   )
 
-  if(!isFALSE(csvSavePath)) { utils::write.csv( mdf, file = csvSavePath ) }
+  if(!isFALSE(csvSavePath)) { utils::write.csv( mdf, file = csvSavePath, row.names = FALSE ) }
 
   return(mdf)
 
