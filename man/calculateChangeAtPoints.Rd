@@ -4,7 +4,7 @@
 \alias{calculateChangeAtPoints}
 \title{Calculate the change in rasterLayer values between rast1 and rast2 at the presence points used to create each of those surfaces.}
 \usage{
-calculateChangeAtPoints(rast1, rast2, rastnames, pts1, pts2)
+calculateChangeAtPoints(rast1, rast2, rastnames, pts1, pts2, ...)
 }
 \arguments{
 \item{rast1}{First input rasterLayer}
@@ -16,6 +16,8 @@ calculateChangeAtPoints(rast1, rast2, rastnames, pts1, pts2)
 \item{pts1}{Points used to create rast1}
 
 \item{pts2}{Points used to create rast2}
+
+\item{...}{Optional extra columns to include in output data.frame.}
 }
 \value{
 A dataframe containing occurrence points categorized by their associated rasterLayer and the difference at that point between the associated and the opposing layer.
