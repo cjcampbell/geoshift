@@ -42,6 +42,7 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     a1 <- myEllipses[[1]]$sf %>% sf::st_area() %>% units::set_units("km^2")
     a2 <- myEllipses[[2]]$sf %>% sf::st_area() %>% units::set_units("km^2")
     overlapArea <- sf::st_intersection(myEllipses[[1]]$sf, myEllipses[[2]]$sf) %>%
+      sf::st_make_valid() %>%
       sf::st_area() %>% units::set_units("km^2")
     Ellipse.Area = c(a1, a2)
     Area.Ratio =  Ellipse.Area / min(Ellipse.Area)
