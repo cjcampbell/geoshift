@@ -59,9 +59,9 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
 
     centroid1_83 <- st_transform(centroid1, crs = "+proj=longlat +datum=NAD83 +ellps=GRS80")
     centroid2_83 <- st_transform(centroid2, crs = "+proj=longlat +datum=NAD83 +ellps=GRS80")
+
     centroid.lat_83 <- c( sf::st_coordinates(centroid1_83)[2], sf::st_coordinates(centroid2_83)[2] )
     centroid.lon_83 <- c( sf::st_coordinates(centroid1_83)[1], sf::st_coordinates(centroid2_83)[1] )
-
 
     centroid.distance <- sf::st_distance(centroid1_83, centroid2_83) %>% units::set_units("km")
     centroid.bearing1 <- geosphere::bearing(sf::as_Spatial(centroid1_83), sf::as_Spatial(centroid2_83))
