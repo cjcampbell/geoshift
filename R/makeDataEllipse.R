@@ -29,7 +29,7 @@ makeDataEllipse <- function(coords, crsString, weights, n = 10000, prop_points) 
   myEllipse <- list()
   myEllipse$st <- SpatialPolygons(
     list(sp::Polygons(list(with(list(x = ellipsePts[,2], y = ellipsePts[,1]),sp::Polygon(ellipsePts))),1)),
-    proj4string = sp::CRS(crsString)
+    proj4string = crsString
   )
   myEllipse$sf <- myEllipse$st %>%
     sf::st_as_sf()
