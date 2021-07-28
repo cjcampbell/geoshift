@@ -32,7 +32,7 @@ makeDataEllipse <- function(coords, crsString, weights, n = 10000, prop_points) 
     proj4string = crsString
   )
   myEllipse$sf <- myEllipse$st %>%
-    sf::st_as_sf()
+    sf::st_as_sf(crs = crsString)
   return(myEllipse)
 
 }
