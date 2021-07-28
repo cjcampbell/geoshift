@@ -54,11 +54,18 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     if(length(percent.Ellipse.intersected) == 0) { percent.Ellipse.intersected <- c(0,0) }
     centroid1 <- sf::st_centroid( myEllipses[[1]]$sf )
     centroid2 <- sf::st_centroid( myEllipses[[2]]$sf )
-    centroid.lat <- c( sf::st_coordinates(centroid1)[2], sf::st_coordinates(centroid2)[2] )
-    centroid.lon <- c( sf::st_coordinates(centroid1)[1], sf::st_coordinates(centroid2)[1] )
-    centroid.distance <- sf::st_distance(centroid1, centroid2) %>% units::set_units("km")
-    centroid.bearing1 <- geosphere::bearing(sf::as_Spatial(centroid1), sf::as_Spatial(centroid2))
-    centroid.bearing2 <- geosphere::bearing(sf::as_Spatial(centroid2), sf::as_Spatial(centroid1))
+    centroid.lat1 <- c( sf::st_coordinates(centroid1)[2], sf::st_coordinates(centroid2)[2] )
+    centroid.lon1 <- c( sf::st_coordinates(centroid1)[1], sf::st_coordinates(centroid2)[1] )
+
+    centroid1_83 <- st_transform(centroid1, crs = "+proj=longlat +datum=NAD83 +ellps=GRS80")
+    centroid2_83 <- st_transform(centroid2, crs = "+proj=longlat +datum=NAD83 +ellps=GRS80")
+    centroid.lat_83 <- c( sf::st_coordinates(centroid1_83)[2], sf::st_coordinates(centroid2_83)[2] )
+    centroid.lon_83 <- c( sf::st_coordinates(centroid1_83)[1], sf::st_coordinates(centroid2_83)[1] )
+
+
+    centroid.distance <- sf::st_distance(centroid1_83, centroid2_83) %>% units::set_units("km")
+    centroid.bearing1 <- geosphere::bearing(sf::as_Spatial(centroid1_83), sf::as_Spatial(centroid2_83))
+    centroid.bearing2 <- geosphere::bearing(sf::as_Spatial(centroid2_83), sf::as_Spatial(centroid1_83))
   })})
 
   mdf <- data.frame(
@@ -66,7 +73,8 @@ extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), s
     schoenersD = rep(schoenersD(rast1,rast2), 2),
     timeChunk = c(rastnames[1], rastnames[2]),
     Ellipse.Area, Area.Ratio, percent.Ellipse.intersected,
-    centroid.lat, centroid.lon,
+    centroid.lat1, centroid.lon1,
+    centroid.lat_83, centroid.lon_83,
     centroid.distance = rep(centroid.distance, 2),
     centroid.bearing = c(centroid.bearing1, centroid.bearing2 ),
     ...
