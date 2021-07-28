@@ -29,12 +29,16 @@
 #' @export
 extractStatistics <- function(rast1, rast2, rastnames = c("Summer", "Winter"), species, myEllipses = NULL, csvSavePath = FALSE, prop_points = 0.5, ...) {
 
+  if(class(rast1) == "RasterLayer" & class(rast2) == "RasterLayer" ) {
+    myCrs <- raster::crs(rast1)
+  }
+
   if(is.null(myEllipses)) {
     df_surface_rast1 <- surface2df(rast1)
     df_surface_rast2 <- surface2df(rast2)
     myEllipses <- list(
-      makeDataEllipse(coords = df_surface_rast1[,1:2], weights =  df_surface_rast1[,3], prop_points = prop_points),
-      makeDataEllipse(coords = df_surface_rast2[,1:2], weights =  df_surface_rast2[,3], prop_points = prop_points)
+      makeDataEllipse(coords = df_surface_rast1[,1:2], crsString = myCrs, weights =  df_surface_rast1[,3], prop_points = prop_points),
+      makeDataEllipse(coords = df_surface_rast2[,1:2], crsString = myCrs, weights =  df_surface_rast2[,3], prop_points = prop_points)
     )
   }
 

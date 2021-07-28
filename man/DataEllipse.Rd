@@ -5,10 +5,12 @@
 \title{Function to return data ellipse around a give proportion of points
 (prop_points) sampled from a surface.}
 \usage{
-makeDataEllipse(coords, weights, n = 10000, prop_points)
+makeDataEllipse(coords, crsString, weights, n = 10000, prop_points)
 }
 \arguments{
 \item{coords}{coordinates of a surface-as-dataframe}
+
+\item{crsString}{string of crs coordinates, should match raster projections.}
 
 \item{weights}{the value of the surface-as-dataframe, weights the subsampling.}
 

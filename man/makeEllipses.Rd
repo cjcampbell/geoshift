@@ -4,7 +4,7 @@
 \alias{makeEllipses}
 \title{makeEllipses}
 \usage{
-makeEllipses(rast1, rast2, prop_points = 0.5, n = 1000)
+makeEllipses(rast1, rast2, prop_points = 0.5, n = 1000, crsString = FALSE)
 }
 \arguments{
 \item{rast1}{First input rasterLayer}
@@ -14,6 +14,8 @@ makeEllipses(rast1, rast2, prop_points = 0.5, n = 1000)
 \item{prop_points}{what proportion of the subsampled cells should be included in the ellipses}
 
 \item{n}{number of sampling replications}
+
+\item{crsString}{string of crs coordinates, should match raster projections.}
 }
 \value{
 A list of ellipse objects for rast1 and rast2 respectively
