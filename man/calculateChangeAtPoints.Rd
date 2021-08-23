@@ -23,5 +23,5 @@ calculateChangeAtPoints(rast1, rast2, rastnames, pts1, pts2, ...)
 A dataframe containing occurrence points categorized by their associated rasterLayer and the difference at that point between the associated and the opposing layer.
 }
 \description{
-Calculate the change in rasterLayer values between rast1 and rast2 at the presence points used to create each of those surfaces.
+This function extracts rasterLayer values for each time-associated rasterLayer, retaining a value for each cell where an occurrence point is found. It returns a data.frame with the difference in rasterLayer value for each retained point for its sampling timestep vs. the opposing timestep.
 }
