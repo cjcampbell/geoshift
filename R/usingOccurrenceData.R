@@ -39,8 +39,7 @@ calculateChangeAtPoints <- function(rast1, rast2, rastnames, pts1, pts2, ...) {
   if( nrow(pts2) - nrow(df2) > 0 ) { warning(paste("omitting",  nrow(pts2) - nrow(df2), "pts for time", rastnames[2], "due to repeated sampling in a particular raster cell.") ) }
 
   # Combine and calculate difference across timesteps.
-  mdf <- rbind(df1, df2 ) %>%
-    data.frame(., ...) %>%
+  mdf <- data.frame(rbind(df1, df2 ), ...) %>%
     dplyr::mutate(
       difference = dplyr::case_when(
         time == rastnames[1] ~ .data[[rastnames[1]]] - .data[[rastnames[2]]],

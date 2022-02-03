@@ -52,5 +52,5 @@ makePlot <- function(surface, species, season, maxCol = NULL, coordArgs = NULL, 
 }
 
 #' @example
-#' # makePlot(mySurface, species = "LANO", season = "summer", x=x,y=y,fill=value )
+#' # makePlot( mySurface, species = "LANO", season = "summer", x=x,y=y,fill=value )
 #' # Additional aes arguments supplied: "x=x,y=y,fill=value"
