@@ -30,7 +30,7 @@ extractPAstatistics <- function(PA1, PA2, ...) {
     {"Class of PA1 and PA2 must be the same" = class(PA1) == class(PA2) },
     {"Class of PA arguments must be RasterLayer" = class(PA1) == c("RasterLayer")},
     {"PA1 and PA2 must have identical extent and resolutions" =
-      !raster::compareRaster(PA1, PA2) }
+      raster::compareRaster(PA1, PA2) }
     )
 
   PA_sf1 <- PA1 %>%
