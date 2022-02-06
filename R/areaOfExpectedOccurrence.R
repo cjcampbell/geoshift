@@ -31,8 +31,8 @@ areaOfExpectedOccurrence <- function(surface) {
     # Convert to sf
     sf::st_as_sf(merge = T) %>%
     # Calculate sum of area(s).
-    sf::st_area() %>%
-    sum()
+    sf::st_union() %>%
+    sf::st_area()
 }
 
 #' @example
