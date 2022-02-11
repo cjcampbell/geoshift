@@ -4,7 +4,7 @@
 \alias{extractPAstatistics}
 \title{Extract comparative statistics from two presence/absence RasterLayers.}
 \usage{
-extractPAstatistics(PA1, PA2, ...)
+extractPAstatistics(PA1, PA2, ..., appendPA = TRUE)
 }
 \arguments{
 \item{PA1}{Presence/absence RasterLayer from season 1}

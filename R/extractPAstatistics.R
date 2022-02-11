@@ -25,7 +25,7 @@
 #' @return A data.frame containing presence-absence surface based metrics
 #'
 #' @export
-extractPAstatistics <- function(PA1, PA2, ...) {
+extractPAstatistics <- function(PA1, PA2, ..., appendPA = TRUE) {
   stopifnot(
     {"Class of PA1 and PA2 must be the same" = class(PA1) == class(PA2) },
     {"Class of PA arguments must be RasterLayer" = class(PA1) == c("RasterLayer")},
@@ -35,44 +35,24 @@ extractPAstatistics <- function(PA1, PA2, ...) {
 
   PA_sf1 <- PA1 %>%
     raster::reclassify( matrix(c(-Inf,0.5,NA), ncol = 3, byrow = T)) %>%
-    # Convert to stars
     stars::st_as_stars() %>%
-    # Convert to sf
     sf::st_as_sf(merge = T) %>%
     sf::st_combine() %>%
     sf::st_make_valid()
   PA_sf2 <- PA2 %>%
     raster::reclassify( matrix(c(-Inf,0.5,NA), ncol = 3, byrow = T)) %>%
-    # Convert to stars
     stars::st_as_stars() %>%
-    # Convert to sf
     sf::st_as_sf(merge = T) %>%
     sf::st_combine() %>%
     sf::st_make_valid()
 
-  # Range size change
-  area_1 <- sf::st_area(PA_sf1)
-  area_2 <- sf::st_area(PA_sf2)
-  rangeSizeChange <- area_1 / area_2
+  df <- statsFromPolygons(PA_sf1, PA_sf2, ...)
 
-  # Year round v.s. seasonal
-  area_yrRound  <- sf::st_intersection( PA_sf1, PA_sf2 ) %>% sf::st_area() %>% as.numeric()
-  area_s1only   <- sf::st_difference(   PA_sf1, PA_sf2 ) %>% sf::st_area() %>% as.numeric()
-  area_s2only   <- sf::st_difference(   PA_sf2, PA_sf1 ) %>% sf::st_area() %>% as.numeric()
-  area_seasonal <- area_s1only + area_s2only
-  area_all      <- sf::st_union( PA_sf1, PA_sf2 ) %>% sf::st_area() %>% as.numeric()
-  yrRoundVseasonal <- as.numeric( (area_seasonal / area_all) - (area_yrRound / area_all) )
-
-  # Centroid distance.
-  centroidDistPA_km <- sf::st_distance(sf::st_centroid(PA_sf1), sf::st_centroid(PA_sf2))
-  units(centroidDistPA_km) <- "km"
+  if(appendPA) {
+    df <- dplyr::rename_with(df, .fn = ~paste0("PA_", .), cols = vars(c(
+      "rangeSizeChange", "yrRoundVseasonal", "centroidDist_km" )))
+  }
 
   # data.frame with returned details.
-  df <- data.frame(
-    ...,
-    PA_rangeSizeChange = rangeSizeChange,
-    PA_yrRoundVseasonal = yrRoundVseasonal,
-    PA_centroidDist_km = centroidDistPA_km
-  )
   return(df)
 }

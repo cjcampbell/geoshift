@@ -22,7 +22,7 @@ Depends:
 	sf
 Imports:
   car,
-  dplyr,
+  dplyr (>= 1.0.0),
   ggplot2,
   geosphere,
   gridExtra,
