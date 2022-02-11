@@ -11,6 +11,7 @@
 #' @param PA1 Presence/absence RasterLayer from season 1
 #' @param PA2 Presence/absence RasterLayer from season 2
 #' @param ... Additional arguments to append to the returned data.frame
+#' @param appendPA True/false to paste character string "PA_" to the column name of the output metrics.
 #'
 #' @importFrom raster compareRaster
 #' @importFrom raster reclassify

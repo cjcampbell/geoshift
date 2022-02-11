@@ -12,6 +12,8 @@ extractPAstatistics(PA1, PA2, ..., appendPA = TRUE)
 \item{PA2}{Presence/absence RasterLayer from season 2}
 
 \item{...}{Additional arguments to append to the returned data.frame}
+
+\item{appendPA}{True/false to paste character string "PA_" to the column name of the output metrics.}
 }
 \value{
 A data.frame containing presence-absence surface based metrics
