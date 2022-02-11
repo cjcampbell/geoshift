@@ -21,6 +21,7 @@ Depends:
 	raster,
 	sf
 Imports:
+  adehabitatHR,
   car,
   dplyr (>= 1.0.0),
   ggplot2,
