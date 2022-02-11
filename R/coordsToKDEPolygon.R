@@ -12,7 +12,7 @@
 #' @importFrom sf st_crs
 #'
 #' @param coords Two-column data.frame, matrix, or SpatialPoints object containing longitude and latitude
-#' @param pecentile Numeric density threshold percentile at which to draw output polygon
+#' @param percentile Numeric density threshold percentile at which to draw output polygon
 #' @param proj4string Character string containing CRS information for coords.
 #'
 #' @return An sf polygon object of specified proj4string

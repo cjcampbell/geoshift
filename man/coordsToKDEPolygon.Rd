@@ -9,9 +9,9 @@ coordsToKDEPolygon(coords, percentile = 50, proj4string)
 \arguments{
 \item{coords}{Two-column data.frame, matrix, or SpatialPoints object containing longitude and latitude}
 
-\item{proj4string}{Character string containing CRS information for coords.}
+\item{percentile}{Numeric density threshold percentile at which to draw output polygon}
 
-\item{pecentile}{Numeric density threshold percentile at which to draw output polygon}
+\item{proj4string}{Character string containing CRS information for coords.}
 }
 \value{
 An sf polygon object of specified proj4string
