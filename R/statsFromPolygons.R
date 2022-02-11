@@ -20,7 +20,7 @@
 #'@export
 statsFromPolygons <- function(sf1, sf2, ...) {
   stopifnot(
-    {"sf1 and sf2 must be of class 'sfc_MULTIPOLYGON'." = all(class(sf1) == c( "sfc_MULTIPOLYGON", "sfc" ))},
+    {"sf1 and sf2 must be of class 'sfc_MULTIPOLYGON'." = all(class(sf1) %in% c(c( "sfc_MULTIPOLYGON", "sfc" ), c("sfc_POLYGON", "sfc")) )},
     {"sf1 and sf2 must both be of class 'sfc_MULTIPOLYGON'." = all(class(sf1) == class(sf2))}
   )
 
