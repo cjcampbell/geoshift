@@ -35,7 +35,14 @@ statsFromPolygons <- function(sf1, sf2, ...) {
   area_s2only   <- sf::st_difference(   sf2, sf1 ) %>% sf::st_area() %>% as.numeric()
   area_seasonal <- area_s1only + area_s2only
   area_all      <- sf::st_union( sf1, sf2 ) %>% sf::st_area() %>% as.numeric()
-  yrRoundVseasonal <- as.numeric( (area_seasonal / area_all) - (area_yrRound / area_all) )
+  # Mitigate against 0's--
+  if(area_seasonal == area_all) {
+    yrRoundVseasonal <- 1
+  } else if(area_yrRound == area_all) {
+    yrRoundVseasonal <- -1
+  } else {
+    yrRoundVseasonal <- as.numeric( (area_seasonal / area_all) - (area_yrRound / area_all) )
+  }
 
   # Centroid distance.
   centroidDist <- st_distance(st_centroid(sf1), st_centroid(sf2))
