@@ -30,10 +30,10 @@ statsFromPolygons <- function(sf1, sf2, ...) {
   rangeSizeChange <- area_1 / area_2
 
   # Year round v.s. seasonal
-  area_yrRound  <- sf::st_intersection( sf1, sf2 ) %>% sf::st_area() %>% as.numeric() %>% sum()
+  area_yrRound  <- sf::st_intersection( sf1, sf2 ) %>% sf::st_make_valid() %>% sf::st_area() %>% as.numeric() %>% sum()
   if(length(area_yrRound) == 0) {area_yrRound <- 0}
-  area_s1only   <- sf::st_difference(   sf1, sf2 ) %>% sf::st_area() %>% as.numeric() %>% sum()
-  area_s2only   <- sf::st_difference(   sf2, sf1 ) %>% sf::st_area() %>% as.numeric() %>% sum()
+  area_s1only   <- sf::st_difference(   sf1, sf2 ) %>% sf::st_make_valid() %>% sf::st_area() %>% as.numeric() %>% sum()
+  area_s2only   <- sf::st_difference(   sf2, sf1 ) %>% sf::st_make_valid() %>% sf::st_area() %>% as.numeric() %>% sum()
   if(length(area_s1only) == 0) { area_s1only <- 0 }
   if(length(area_s2only) == 0) { area_s2only <- 0 }
   area_seasonal <- area_s1only + area_s2only
