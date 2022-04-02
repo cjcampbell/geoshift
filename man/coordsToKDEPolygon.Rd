@@ -4,7 +4,7 @@
 \alias{coordsToKDEPolygon}
 \title{Determine the KDE of occurrence coordinates and convert to polygon at density threshold}
 \usage{
-coordsToKDEPolygon(coords, percentile = 50, proj4string)
+coordsToKDEPolygon(coords, percentile = 50, proj4string, extent = 1)
 }
 \arguments{
 \item{coords}{Two-column data.frame, matrix, or SpatialPoints object containing longitude and latitude}
@@ -12,6 +12,8 @@ coordsToKDEPolygon(coords, percentile = 50, proj4string)
 \item{percentile}{Numeric density threshold percentile at which to draw output polygon}
 
 \item{proj4string}{Character string containing CRS information for coords.}
+
+\item{extent}{Controls the extent of the grid for estimating KDE.}
 }
 \value{
 An sf polygon object of specified proj4string
