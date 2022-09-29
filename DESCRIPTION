@@ -1,4 +1,4 @@
-Package: SDMetrics
+Package: geoshift
 Title: Metrics To Compare Temporally Explicit Species Distribution Models
 Version: 0.0.0.9000
 Authors@R: 

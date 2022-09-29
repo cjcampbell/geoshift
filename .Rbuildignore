@@ -1,3 +1,5 @@
-^SDMetrics\.Rproj$
+^geoshift\.Rproj$
 ^\.Rproj\.user$
 ^\testing\*
+^\dev_img\*
+images\*
