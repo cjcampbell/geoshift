@@ -4,7 +4,7 @@
 \alias{areaOfExpectedOccurrence}
 \title{Calculate the area of a region of expected occurrence from a presence/absence surface}
 \usage{
-areaOfExpectedOccurrence(surface)
+areaOfExpectedOccurrence(surface, unit = "km")
 }
 \arguments{
 \item{surface}{rasterLayer with values of NA, 0, and 1}

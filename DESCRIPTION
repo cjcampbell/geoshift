@@ -1,6 +1,6 @@
 Package: geoshift
 Title: Metrics To Compare Temporally Explicit Species Distribution Models
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     c(
       person(given = "Caitlin",
@@ -16,10 +16,11 @@ License: CC0
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.3
 Depends:
-	raster,
-	sf
+    R (>= 3.5),
+    terra,
+    sf
 Imports:
   adehabitatHR,
   car,
@@ -29,12 +30,14 @@ Imports:
   gridExtra,
   magrittr,
   purrr,
-  rgeos,
+  tidyterra,
   scales,
   sp,
   stars,
   units,
   utils
 Suggests: 
-    testthat (>= 3.0.0)
+  patchwork,
+  testthat (>= 3.0.0)
 Config/testthat/edition: 3
+URL: https://cjcampbell.github.io/geoshift/
