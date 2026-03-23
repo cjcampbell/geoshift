@@ -7,14 +7,14 @@
 #' @param surface rasterLayer to be converted to a dataframe
 #' @return A 3-column dataframe with coordinates and value.
 #'
-#' @importFrom raster as.data.frame
+#' @importFrom terra as.data.frame
 #' @importFrom dplyr rename
 #' @importFrom magrittr %>%
 #'
 #' @export
 surface2df <- function(surface) {
   surface %>%
-    raster::as.data.frame(
+    terra::as.data.frame(
       xy = T, na.rm = T
     ) %>%
     dplyr::rename(value = 3 )
