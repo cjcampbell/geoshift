@@ -3,3 +3,8 @@
 ^\testing\*
 ^\dev_img\*
 images\*
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^data-raw$
