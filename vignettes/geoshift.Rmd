@@ -1,0 +1,639 @@
+---
+title: "Quantifying Seasonal Range Shifts with geoshift"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quantifying Seasonal Range Shifts with geoshift}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE   # set to TRUE once example data are bundled
+)
+#library(geoshift)
+```
+
+## Introduction
+
+Seasonal migration is a consequential and widespread phenomenon in animal
+ecology, yet characterizing the full scope of migratory diversity across
+thousands of species remains a persistent challenge. Tracking technologies
+provide the gold standard for documenting individual movement, but their
+logistical and financial demands make it impractical to deploy them at the
+taxonomic and geographic scales needed for broad comparative work. Incidental occurrence records 
+from citizen science platforms and natural history collections have grown to the 
+point where seasonally-explicit species distribution models (SDMs) are now feasible 
+for an enormous range of taxa. This growth in data availability offers a path toward scalable, data-driven
+inference of migratory behavior across the tree of life.
+
+`geoshift` bridges the gap between SDM outputs and migration biology. Given
+two seasonal SDM surfaces, the package provides a coordinated suite
+of metrics that together characterize a species' migratory strategy. We
+organize these metrics along three facets of migratory strategy:
+
+- **Migration centroid distance**: the geographic distance (in km) between the
+  centers of two seasonal distributions, used as a proxy for migration
+  distance.
+- **Seasonality**: the degree to which the species occupies distinct seasonal
+  ranges versus a stable year-round range. This index ranges from −1 (entirely
+  year-round, i.e., no seasonal shift) to +1 (seasonal distributions are
+  entirely non-overlapping, i.e., a fully migratory species).
+- **Range size change**: the ratio of range area in season 1 to season 2, capturing
+  whether species contract into a smaller range, expand into a larger
+  one, or maintain comparable range sizes across seasons.
+
+Metrics to capture these facets of migratory strategy can be derived from both
+continuous probability-of-occurrence surfaces and from binary
+(presence/absence) surfaces, and `geoshift` provides dedicated functions for
+each pathway. A set of complementary tools for working with raw occurrence
+coordinates is also included for cases where point-based summaries are needed
+alongside or instead of raster-based ones. Additionally, we provide a function
+to generate centroid distance, seasonality, and range size change metrics from
+two polygons representing seasonally-explicit distributions such as
+published expert range maps.
+
+---
+
+## Installation and Setup
+
+`geoshift` is currently available from GitHub:
+
+```{r install, eval = FALSE}
+# install.packages("remotes")
+remotes::install_github("cjcampbell/geoshift")
+```
+
+Once installed, load the package alongside `terra` and `sf`, which provide the
+spatial data classes that `geoshift` functions expect as inputs and return as
+outputs:
+
+```{r load}
+library(geoshift)
+library(terra)
+library(sf)
+```
+
+---
+
+## Input Data Requirements
+
+`geoshift` is designed to work at the end of an SDM pipeline, after models have
+been fit, projected, and, for polygon-based analyses, thresholded into a
+binary presence/absence surface. The package supports four types of input data:
+
+1. **Continuous surfaces** — raw probability-of-occurrence predictions output by
+   most SDM algorithms (e.g., the cloglog output from Maxent). Values typically
+   range from 0 to 1, representing relative habitat suitability or predicted
+   occurrence probability.
+
+2. **Binary (presence/absence) surfaces** — continuous surfaces that have been
+   thresholded into predictions of presence (1) or absence (0), with cells not
+   predicted to support occurrence set to NA or 0.
+
+3. **Occurrence points** — occurrence records with x and y coordinate values
+   denoting a recorded presence of a species.
+
+4. **Polygons** — `sf` polygon objects representing a seasonally-explicit
+   distribution, such as expert-drawn range maps.
+
+Both raster surface types (continuous and binary) should share the same CRS,
+extent, and resolution. The metrics that compare seasonal surfaces are only
+interpretable if the two rasters are directly comparable in geographic space.
+
+---
+
+## Analyzing Continuous SDM Surfaces
+
+Continuous SDM surfaces encode spatial variation in predicted occurrence
+probability across every grid cell in the study extent. `geoshift` offers
+complementary approaches to comparing a pair of such surfaces: a global overlap
+statistic (Schoener's D), an ellipse-based geometric approach that characterizes
+the shape, size, and position of each seasonal distribution, a tool for
+examining SDM values at original occurrence locations, and a high-level
+wrapper that bundles many of these statistics into a single call.
+
+### Niche overlap with Schoener's D
+
+Schoener's D is a widely used measure of niche overlap that quantifies the
+degree to which two probability surfaces share the same spatial distribution of
+predicted values. It is calculated as:
+
+$$D = 1 - \frac{1}{2} \sum_{i} |p_{1,i} - p_{2,i}|$$
+
+where $p_{1,i}$ and $p_{2,i}$ are the normalized predicted values for surface 1
+and surface 2 in cell $i$. D ranges from 0 (no overlap — the surfaces predict
+occurrence in completely different places) to 1 (perfect overlap — the surfaces
+are identical in their spatial predictions). In the context of seasonal
+migration, a low D value indicates that a species occupies very different
+environments in its summer and winter seasons, while a high D suggests broadly
+similar habitat use year-round.
+
+`schoenersD()` takes two raster objects as inputs and returns a single numeric
+value. Both surfaces are normalized internally before the calculation, so raw
+values do not need to sum to 1 before being passed to the function.
+
+```{r schoenersD}
+d_value <- schoenersD(rast1 = summer_surface, rast2 = winter_surface)
+d_value
+```
+
+### Visualizing where seasons differ: the Schoener's projection surface
+
+A single D value summarizes the global degree of overlap between two surfaces,
+but it cannot tell you *where* the surfaces agree or diverge geographically.
+`schoenersProjection()` computes a cell-by-cell difference raster that
+preserves this spatial information. Each cell in the output raster reflects how
+much more strongly that cell is predicted under one surface versus the other,
+after both have been normalized. Cells where the summer surface predominates
+will have positive values; cells where the winter surface predominates will have
+negative values; and cells where the two surfaces make similar predictions will
+be near zero.
+
+By default, `schoenersProjection()` returns absolute differences (`abs = TRUE`),
+which is useful for identifying regions of high disagreement regardless of
+direction. Setting `abs = FALSE` returns signed differences, which reveal
+directionality — identifying which cells are distinctly "summer-season cells"
+versus "winter-season cells."
+
+```{r schoenersProj}
+# Signed projection: positive = summer, negative = winter
+similarity_rast <- schoenersProjection(rast1 = summer_surface,
+                                       rast2 = winter_surface,
+                                       abs   = FALSE)
+```
+
+This output raster can be passed directly to `makeCompoundPlot()` for
+visualization (see Section 7), or explored with any standard raster plotting
+workflow.
+
+### Data ellipses: geometric summaries of seasonal distributions
+
+While Schoener's D and the projection surface capture cell-level similarity,
+ecologists often want a more geometric summary, the location, size, and
+orientation of each seasonal distribution as a whole. `geoshift` implements a
+weighted resampling ellipse approach for this purpose.
+
+The core idea is straightforward: treat the continuous SDM surface as a sampling
+weight and draw a large number of random points from the geographic domain of
+the raster in proportion to predicted occurrence probability. The spatial
+distribution of those resampled points is then summarized by a data ellipse
+enclosing a specified proportion of points (controlled by `prop_points`, with a
+default of 0.50). Because higher-probability cells contribute more points to
+the sample, the ellipse reflects the "center of mass" of the predicted
+distribution rather than its full spatial extent. This makes ellipses more
+robust to spatially diffuse low-probability predictions at the fringes of the
+modeled range than methods based on convex hulls or raw raster extents.
+
+`surface2df()` is a utility function that converts a raster surface into a
+three-column data frame of x coordinates, y coordinates, and cell values,
+with NA cells removed. It is used internally by several `geoshift` functions
+and can also be called directly when a data frame representation of a raster is
+needed.
+
+`makeDataEllipse()` generates a single ellipse for one surface. It requires a
+data frame of coordinates and their associated weights (cell values), a CRS
+string, and the `prop_points` parameter:
+
+```{r ellipse-single}
+# Convert raster to a weighted coordinate data frame first
+summer_df <- surface2df(summer_surface)
+
+summer_ellipse <- makeDataEllipse(
+  coords      = summer_df[, c("x", "y")],
+  weights     = summer_df$value,
+  crsString   = crs(summer_surface),
+  prop_points = 0.50
+)
+```
+
+Each ellipse object is a list with two elements: `$sf` (an `sf` polygon, the
+recommended format for downstream analysis) and `$st` (a `SpatialPolygons`
+object, retained for compatibility).
+
+For most workflows, `makeEllipses()` is more convenient. It is a wrapper that
+calls `makeDataEllipse()` on both rasters at once and returns a named list of
+two ellipses:
+
+```{r ellipses-both}
+my_ellipses <- makeEllipses(
+  rast1       = summer_surface,
+  rast2       = winter_surface,
+  prop_points = 0.50,
+  n           = 10000
+)
+```
+
+The `n` argument controls the number of points resampled from each surface.
+Larger values produce more stable ellipse estimates but increase computation
+time; 10,000 is generally sufficient for smooth ellipses on continental-scale
+rasters.
+
+### Change at points: reading SDM values at occurrence locations
+
+`calculateChangeAtPoints()` provides a complementary perspective on seasonal
+distributional change by asking: for each occurrence point recorded in one
+season, how suitable does the SDM predict that location to be in the *other*
+season? This requires both raster surfaces and both sets of occurrence
+coordinates, and returns a data frame with the raw SDM values from each surface
+extracted at each point, along with a `difference` column encoding the
+cross-season change.
+
+For an occurrence point recorded in the first season, the difference value is
+the second-season surface value minus the first-season surface value at that
+location. A negative difference indicates that the first-season site is
+predicted to become less suitable in the following season, consistent with a
+species that departs that location. For a second-season occurrence point, the
+sign is reversed: positive differences indicate that the second-season site is
+predicted to have been less suitable during the first season — for example, a
+winter-specialist site in a species with distinct seasonal ranges.
+
+```{r changeAtPoints}
+change_df <- calculateChangeAtPoints(
+  rast1     = summer_surface,
+  rast2     = winter_surface,
+  rastnames = c("Summer", "Winter"),
+  pts1      = summer_coords,
+  pts2      = winter_coords
+)
+```
+
+The output data frame retains the original coordinates of each point alongside
+the extracted and difference values, making it straightforward to map the
+spatial distribution of seasonal change across the observation record or to
+summarize it with descriptive statistics (e.g., mean difference, proportion of
+points where the winter surface value exceeds the summer surface value).
+
+### Extracting the full statistics table from continuous surfaces
+
+`extractStatistics()` is the high-level function for deriving a comprehensive
+set of comparison metrics from two continuous raster surfaces in a single call.
+Internally, it computes Schoener's D, constructs data ellipses for both
+surfaces (or accepts pre-computed ellipses via `myEllipses`), and derives
+centroid positions, centroid distance, bearing between centroids, ellipse areas,
+and the proportion of ellipse overlap. The result is returned as a single-row
+data frame that is easy to bind with results from other species or time periods.
+
+The `rastnames` argument accepts any seasonal labels that are meaningful for
+your study system — `c("Summer", "Winter")`, `c("Wet season", "Dry season")`,
+`c("Breeding", "Nonbreeding")`, and so on.
+
+```{r extractStats}
+stats_table <- extractStatistics(
+  rast1      = summer_surface,
+  rast2      = winter_surface,
+  rastnames  = c("Summer", "Winter"),
+  species    = "Tadarida_brasiliensis",
+  myEllipses = my_ellipses
+)
+```
+
+Key columns in the output include:
+
+- `schoenersD`: global niche overlap (0–1)
+- `centroid.distance`: great-circle distance in km between the centroids of
+  the two ellipses — the continuous-surface analog of migration distance
+- `centroid.bearing`: compass bearing from the season-one centroid to the
+  season-two centroid, useful for describing the direction of seasonal movement
+- `Ellipse.Area`: area of each ellipse in km²
+- `Area.Ratio`: ratio of ellipse areas (season one : season two)
+- `percent.Ellipse.intersected`: the proportion of each ellipse overlapped by
+  the other, a geometric analog of the seasonality index
+
+If you are processing multiple species, pre-computing ellipses with
+`makeEllipses()` and passing them via `myEllipses` skips the resampling step
+and substantially reduces run time for batch workflows.
+
+---
+
+## Analyzing Binary (Presence/Absence) Surfaces
+
+By collapsing the continuous probability surface into discrete predictions of
+where a species is and is not expected to occur, binary surfaces yield range
+polygons that can be compared geometrically — how much do they overlap? Which
+parts are unique to each season? How far apart are the range centers?
+
+### Importance of thresholding decisions
+
+The translation from continuous probability to a discrete presence/absence
+prediction involves a choice of threshold, and that choice is consequential.
+The choice of thresholding method is upstream of `geoshift` and not performed
+by the package, but it matters for the metrics you will derive. Automated
+thresholding methods based on model performance statistics (e.g., maximizing
+the True Skill Statistic, TSS) provide a reproducible, assumption-light
+approach that works well when occurrence data are dense and model validation is
+robust. Expert thresholding — in which the researcher inspects maps and adjusts
+the threshold against independent knowledge of the species' range — can improve
+accuracy when data are sparse or when automated methods produce implausible
+predictions. In our validation study (Campbell et al., forthcoming),
+expert-thresholded binary surfaces outperformed both automated binary metrics
+and continuous-surface metrics for explaining benchmark measures of centroid
+distance and seasonality across 50 North American bird species. We recommend
+retaining and documenting the threshold value applied to each surface.
+
+### The three core binary or presence/absence (PA) metrics
+
+`extractPAstatistics()` is the primary function for the binary surface
+workflow. It accepts two binary raster objects, converts them to `sf` polygon
+objects, and passes them to `statsFromPolygons()` to compute the three core
+metrics. The result is a data frame with column names prefixed by `"PA_"` by
+default, containing:
+
+**Centroid distance** (`PA_centroidDist_km`): the distance in kilometers
+between the geographic centroids of the two range polygons. This is the most
+direct SDM-based proxy for migration distance. A species with non-overlapping
+summer and winter ranges on opposite sides of a continent will have a large
+centroid distance; a year-round resident will have a centroid distance near
+zero.
+
+**Seasonality index** (`PA_yrRoundVseasonal`): a normalized index that
+quantifies the degree to which the range is seasonal versus year-round. The
+index is computed by comparing the area of the geometric intersection of the
+two seasonal polygons (the year-round component of the range) against the areas
+of the portions unique to each season. The index ranges from −1, indicating
+that the entire predicted range is year-round (no seasonal shift), to +1,
+indicating that the summer and winter ranges are entirely non-overlapping (a
+fully migratory species with distinct seasonal destinations). Values near zero
+indicate partial migration, in which part of the population or range is stable
+year-round and part is seasonally distinct.
+
+**Range size change** (`PA_rangeSizeChange`): the ratio of the area of the
+first surface's polygon to that of the second (e.g., summer:winter area).
+Values greater than 1 indicate a larger first-season range; values less than
+1 indicate the opposite. This metric captures phenomena such as summer-season
+range expansion (common in Temperate Zone breeders that winter in the tropics),
+winter aggregation at productive wintering sites, or post-breeding range
+contraction.
+
+```{r extractPA}
+pa_metrics <- extractPAstatistics(
+  PA1 = summer_binary,
+  PA2 = winter_binary
+)
+pa_metrics
+```
+
+### Working directly with polygon objects
+
+If you already have `sf` polygon objects — for example, published range maps
+from BirdLife International, NatureServe, or the IUCN Red List — you can pass
+them directly to `statsFromPolygons()`. This is the underlying function called
+by `extractPAstatistics()`, and it accepts any pair of `sfc_POLYGON` or
+`sfc_MULTIPOLYGON` objects:
+
+```{r statsFromPolygons}
+polygon_metrics <- statsFromPolygons(
+  sf1 = summer_polygon,
+  sf2 = winter_polygon
+)
+```
+
+The output column names from `statsFromPolygons()` do not carry the `"PA_"`
+prefix. This makes it easy to compare metrics derived from SDM surfaces with
+those from published range maps in the same data frame: the `"PA_"` prefix
+keeps SDM-derived metrics distinct from polygon-derived metrics when columns
+are joined.
+
+### Computing range area
+
+`areaOfExpectedOccurrence()` calculates the geographic area represented by
+the presence cells in a binary raster. It reclassifies the surface to retain
+only presence cells, converts the result to an `sf` polygon, and returns the
+total area as a `units` object in the native units of the raster's CRS (most
+commonly km² for projected rasters). This function is called internally by
+`extractPAstatistics()` and `statsFromPolygons()`, but it is also available
+directly for cases where standalone area calculations are needed — for example,
+to report absolute range sizes alongside relative metrics.
+
+```{r areaOfExpectedOccurrence}
+summer_area <- areaOfExpectedOccurrence(summer_binary)
+winter_area <- areaOfExpectedOccurrence(winter_binary)
+
+# Area is returned as a units object; convert to numeric km² if needed
+as.numeric(summer_area)
+```
+
+---
+
+## Using Occurrence Point Data
+
+`geoshift` provides two functions that convert occurrence coordinate data
+frames into polygon objects. These polygons can then be passed to
+`statsFromPolygons()` to obtain the same three core metrics (centroid distance,
+seasonality, range size change) that are available from binary raster surfaces.
+We note that our validation study found metrics derived from occurrence points
+alone performed worse at describing migration strategies than those derived from
+SDMs; point-based summaries are therefore most appropriate as exploratory
+baselines or in cases where SDM fitting is not feasible.
+
+### Convex hull polygons
+
+A convex hull is the smallest convex polygon that encloses a set of points.
+It is the simplest possible polygon summary of an occurrence dataset, requiring
+no modeling assumptions. `coordsToConvexHull()` accepts a two-column data
+frame, matrix, or `SpatialPoints` object of longitude–latitude coordinates and
+an optional `proj4string` specifying the target CRS, and returns an `sf`
+polygon. The returned polygon can be passed directly to `statsFromPolygons()`
+for metric extraction.
+
+```{r convexHull}
+summer_hull <- coordsToConvexHull(
+  coords      = summer_coords,
+  proj4string = "+proj=longlat +datum=WGS84"
+)
+
+winter_hull <- coordsToConvexHull(
+  coords      = winter_coords,
+  proj4string = "+proj=longlat +datum=WGS84"
+)
+
+hull_metrics <- statsFromPolygons(sf1 = summer_hull, sf2 = winter_hull)
+```
+
+Convex hull polygons are sensitive to spatial outliers in occurrence records
+and will tend to overestimate range size in datasets where records are unevenly
+distributed across the true range. They are most appropriate as rapid
+exploratory summaries or as baselines against which model-based estimates can
+be compared.
+
+### Kernel density estimate polygons
+
+Kernel density estimation (KDE) offers a more nuanced coordinate-to-polygon
+approach that is less sensitive to outliers and better captures the spatial
+density of occurrence records. `coordsToKDEPolygon()` fits a bivariate kernel
+density surface to the input coordinates and returns an `sf` polygon
+representing the contour at a specified density percentile (the `percentile`
+argument, defaulting to 50). A 50th-percentile polygon encloses the geographic
+area where the modeled density of occurrence records is at or above the median —
+roughly capturing the core of the observed range rather than its full extent.
+
+```{r kdePolygon}
+summer_kde <- coordsToKDEPolygon(
+  coords      = summer_coords,
+  percentile  = 50,
+  proj4string = "+proj=longlat +datum=WGS84"
+)
+
+winter_kde <- coordsToKDEPolygon(
+  coords      = winter_coords,
+  percentile  = 50,
+  proj4string = "+proj=longlat +datum=WGS84"
+)
+
+kde_metrics <- statsFromPolygons(sf1 = summer_kde, sf2 = winter_kde)
+```
+
+The `extent` argument controls the spatial extent of the grid used to compute
+the kernel density surface and can be increased if the default grid clips the
+density surface at its edges.
+
+---
+
+## Visualization
+
+`geoshift` includes two purpose-built plotting functions that produce
+`ggplot2`-based visualizations of seasonal SDM outputs. Both functions return
+`ggplot` objects that can be further modified with standard `ggplot2` syntax
+after they are created.
+
+### Single-season maps with `makePlot()`
+
+`makePlot()` produces a map of a single seasonal surface colored by a gradient
+from light grey (low predicted occurrence) to a season-specific accent color
+(high predicted occurrence). By convention, summer surfaces are rendered in red
+and winter surfaces in blue, though the `maxCol` argument allows the accent
+color to be overridden. The function accepts the three-column data frame output
+of `surface2df()` rather than a raster directly, making the conversion step
+explicit:
+
+```{r makePlot}
+summer_df <- surface2df(summer_surface)
+winter_df <- surface2df(winter_surface)
+
+p_summer <- makePlot(surface = summer_df,
+                     species = "American Redstart",
+                     season  = "Summer")
+
+p_winter <- makePlot(surface = winter_df,
+                     species = "American Redstart",
+                     season  = "Winter")
+```
+
+The `coordArgs` parameter accepts a named list of arguments passed to
+`coord_sf()`, which is useful for adjusting the geographic extent of the plot —
+for example, cropping to a region of interest rather than the full raster
+extent. `pngSaveFileName` optionally saves the plot directly to a PNG file.
+
+### Compound comparison plots with `makeCompoundPlot()`
+
+`makeCompoundPlot()` assembles a multi-panel visualization that places the full
+seasonal comparison in a single figure. The central panel displays the
+Schoener's projection surface — the signed cell-by-cell difference between the
+two normalized seasonal surfaces — as a diverging color gradient from blue
+(winter-dominant cells) through grey (similar predictions in both seasons) to
+red (summer-dominant cells). Overlaid on this background are the two data
+ellipses (red for `rast1`, blue for `rast2`) and their respective centroids,
+providing an immediate visual summary of the shape and separation of the two
+seasonal distributions.
+
+An optional `summaryTable` argument accepts a data frame of metrics (e.g.,
+the output of `extractStatistics()` or `extractPAstatistics()`) and renders it
+as a formatted table below the map panel, making `makeCompoundPlot()` suitable
+for generating a self-contained summary figure for each species in a
+multi-species analysis.
+
+```{r makeCompoundPlot}
+compound_plot <- makeCompoundPlot(
+  rast1        = summer_surface,
+  rast2        = winter_surface,
+  rastnames    = c("Summer", "Winter"),
+  myEllipses   = my_ellipses,
+  species      = "American Redstart",
+  summaryTable = stats_table
+)
+
+compound_plot
+```
+
+As with `makePlot()`, `pngSaveFileName` can be used to write the result
+directly to disk. Passing pre-computed ellipses via `myEllipses` avoids
+re-running the resampling step if ellipses were already computed for
+`extractStatistics()`.
+
+---
+
+## Interpreting Results in a Migration Biology Context
+
+Migration centroid distance, seasonality index, and range size change are most
+informative when interpreted together rather than in isolation.
+
+A large centroid distance paired with a high seasonality index (near +1)
+describes a strongly migratory species with geographically distinct seasonal
+ranges — the pattern typical of long-distance Neotropical migrants in North
+America that breed across temperate latitudes in summer and concentrate in
+Central and South America in winter.
+
+A small centroid distance paired with a seasonality index near zero describes a
+resident or short-distance mover whose range center is stable across seasons.
+Intermediate values of both metrics suggest a partial migrant: a species in
+which some populations or individuals migrate while others remain on or near the
+summer range.
+
+Range size change adds further nuance. A summer:winter area ratio substantially
+greater than 1 (summer range much larger) may indicate that a species
+aggregates into a smaller, resource-rich winter range — a pattern common in
+species that exploit seasonally productive temperate breeding habitats and then
+concentrate on tropical or subtropical wintering grounds. A ratio near 1
+suggests comparable seasonal range sizes, while a ratio less than 1 (summer
+range smaller than winter range) may reflect a species that expands its range in
+winter, perhaps tracking spatially distributed food resources across a broad
+landscape.
+
+A few additional considerations are worth keeping in mind when interpreting
+`geoshift` outputs:
+
+**Data density effects.** Metrics derived from SDMs built with few occurrence
+records will have greater uncertainty than those based on dense occurrence
+datasets. In the validation study accompanying this package, metrics derived
+from models built with as few as 50 occurrence records per season remained
+informative for centroid distance and seasonality, but range size change was
+more sensitive to data density and should be interpreted more cautiously when
+records are sparse.
+
+**Thresholding sensitivity.** The choice of threshold for binary surfaces
+directly affects the area and position of the resulting range polygons, and
+therefore the polygon-based metrics. Comparing metrics across species
+thresholded with different methods (e.g., automated TSS thresholding for
+data-rich species and expert thresholding for data-poor ones) introduces a
+potential source of systematic bias and should be avoided where possible.
+
+**Spatial extent.** Predictions are only made within the geographic extent used
+to project the SDM. If the study extent does not encompass a species' full
+seasonal range — for example, if a species' winter range extends beyond the
+study region — the centroid and polygon metrics will reflect only the modeled
+portion of the range and may underestimate the true seasonal shift.
+
+---
+
+## Summary and Further Resources
+
+`geoshift` provides a structured, reproducible workflow for translating seasonal
+SDM outputs into ecologically interpretable metrics of migratory behavior,
+making it possible to characterize migratory strategy across large numbers of
+species in a consistent, comparable framework.
+
+**Companion manuscript:** The methods implemented in `geoshift` are described
+and validated against eBird abundance benchmarks across 50 North American bird
+species in Campbell et al. (forthcoming). A link to the published paper and
+associated preprint will be provided here upon availability.
+
+**SDM fitting:** Methods describing the SDM pipeline used to generate the SDMs
+in our companion manuscript are described in Abbott, J. C., Bota-Sierra, C. A.,
+Guralnick, R., Kalkman, V., González-Soriano, E., Novelo-Gutiérrez, R., ... &
+Belitz, M. W. (2022). Diversity of Nearctic dragonflies and damselflies
+(Odonata). *Diversity*, 14(7), 575.
+
+**Package source and issue tracker:**
+<https://github.com/cjcampbell/geoshift>
