@@ -1,0 +1,130 @@
+url: https://cjcampbell.github.io/geoshift/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary:         "#1D8C8A"   # dark teal  (logo "shift" text)
+    link-color:      "#1D8C8A"
+    navbar-bg:       "#0D0D0D"   # near-black (logo background)
+    navbar-fg:       "#FFFFFF"
+    navbar-brand-color: "#FFFFFF"
+    heading-font:    "Source Sans Pro"
+    base-font:       "Source Sans Pro"
+    code-font:       "JetBrains Mono"
+  includes:
+    in_header: |
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+home:
+  title: "geoshift — Quantifying Seasonal Range Shifts from SDMs"
+  description: >
+    Tools for extracting ecologically meaningful metrics of seasonal
+    distributional change from temporally-explicit species distribution models.
+  links:
+    - text: Browse source code
+      href: https://github.com/cjcampbell/geoshift
+    - text: Report a bug
+      href: https://github.com/cjcampbell/geoshift/issues
+
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [github]
+  components:
+    intro:
+      text: Get Started
+      href: articles/geoshift.html
+    articles:
+      text: Articles
+      menu:
+        - text: "Quantifying Seasonal Range Shifts"
+          href: articles/geoshift.html
+        - text: "---"
+        - text: "Companion Manuscript (forthcoming)"
+          href: ~
+    reference:
+      text: Reference
+      href: reference/index.html
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/cjcampbell/geoshift
+      aria-label: GitHub
+
+reference:
+  - title: "Metrics from continuous rasters"
+    desc: >
+      Functions for comparing raw probability-of-occurrence surfaces output by
+      SDM algorithms. These functions operate on the continuous predicted values
+      and do not require a thresholding step.
+    contents:
+      - schoenersD
+      - schoenersProjection
+      - extractStatistics
+
+  - title: "Metrics from binary rasters and polygons"
+    desc: >
+      Functions for comparing presence/absence (thresholded) raster surfaces
+      and the range polygons derived from them. These functions compute the
+      three core migration metrics: centroid distance, seasonality index, and
+      range size change.
+    contents:
+      - extractPAstatistics
+      - statsFromPolygons
+      - areaOfExpectedOccurrence
+
+  - title: "Ellipse methods"
+    desc: >
+      Functions for generating weighted resampling ellipses from continuous
+      SDM surfaces. Ellipses provide geometric summaries of the shape,
+      size, and position of each seasonal distribution.
+    contents:
+      - makeDataEllipse
+      - makeEllipses
+
+  - title: "Occurrence and coordinate utilities"
+    desc: >
+      Functions for working with raw occurrence coordinates and for
+      extracting raster values at point locations. These functions support
+      point-based benchmarking and analyses that complement the raster workflows.
+    contents:
+      - coordsToConvexHull
+      - coordsToKDEPolygon
+      - calculateChangeAtPoints
+      - surface2df
+
+  - title: "Visualization"
+    desc: >
+      Functions for creating maps and comparison figures from seasonal SDM
+      surfaces and their associated metrics. All functions return `ggplot2`
+      objects that can be further customized with standard `ggplot2` syntax.
+    contents:
+      - makePlot
+      - makeCompoundPlot
+
+articles:
+  - title: "Vignettes"
+    navbar: ~
+    contents:
+      - geoshift
+
+authors:
+  "CJ Campbell":
+    href: https://github.com/cjcampbell
+  "Michael Belitz":
+    href: https://github.com/mbelitz
+
+footer:
+  structure:
+    left:  [developed_by]
+    right: [built_with]
+  components:
+    developed_by: >
+      Developed by
+      <a href="https://github.com/cjcampbell">CJ Campbell</a>
+      (Bat Conservation International &amp; University of Wisconsin–Madison) and
+      <a href="https://github.com/mbelitz">Michael Belitz</a>
+      (Michigan State University &amp; University of Wisconsin–Madison).
